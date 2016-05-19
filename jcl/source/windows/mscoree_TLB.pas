@@ -1,8 +1,8 @@
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date::                                                                        $ }
+{ Last modified: $Date: 2016-05-19 13:00:26 $ }
 { Revision:      $Rev::                                                                          $ }
-{ Author:        $Author::                                                                       $ }
+{ Author:        $Author: elias $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -19,7 +19,7 @@ unit mscoree_TLB;
 // manual modifications will be lost.                                         
 // ************************************************************************ //
 
-// PASTLWTR : $Revision$
+// PASTLWTR : $Revision: 1.1 $
 // File generated on 14.12.2003 01:39:55 from Type Library described below.
 
 // ************************************************************************  //
@@ -446,8 +446,8 @@ type
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision$';
-    Date: '$Date$';
+    Revision: '$Revision: 1.1 $';
+    Date: '$Date: 2016-05-19 13:00:26 $';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

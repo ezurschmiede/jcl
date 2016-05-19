@@ -26,9 +26,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date::                                                                         $ }
+{ Last modified: $Date: 2016-05-19 13:00:26 $ }
 { Revision:      $Rev::                                                                          $ }
-{ Author:        $Author::                                                                       $ }
+{ Author:        $Author: elias $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -229,8 +229,8 @@ type
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision$';
-    Date: '$Date$';
+    Revision: '$Revision: 1.1 $';
+    Date: '$Date: 2016-05-19 13:00:26 $';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

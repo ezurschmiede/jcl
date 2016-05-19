@@ -22,7 +22,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 
-// Last modified: $Date$
+// Last modified: $Date: 2016-05-19 12:59:31 $
 // For history see end of file
 
 unit JclVector;

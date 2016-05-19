@@ -25,7 +25,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 
-// Last modified: $Date$
+// Last modified: $Date: 2016-05-19 12:59:33 $
 // For history see end of file
 
 unit JclUnitVersioning;
@@ -852,9 +852,9 @@ end;
 
 const
   UnitVersioning: TUnitVersionInfo = (
-    RCSfile: '$RCSfile$';
-    Revision: '$Revision$';
-    Date: '$Date$';
+    RCSfile: '$RCSfile: JclUnitVersioning.pas,v $';
+    Revision: '$Revision: 1.1 $';
+    Date: '$Date: 2016-05-19 12:59:33 $';
     LogPath: 'JCL\common';
   );
 
@@ -866,7 +866,10 @@ finalization
 
 // History:
 
-// $Log$
+// $Log: JclUnitVersioning.pas,v $
+// Revision 1.1  2016-05-19 12:59:33  elias
+// *** empty log message ***
+//
 // Revision 1.2  2005/01/31 06:47:33  marquardt
 // cleanup and simplifications
 //

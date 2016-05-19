@@ -24,9 +24,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date::                                                                         $ }
+{ Last modified: $Date: 2016-05-19 13:00:17 $ }
 { Revision:      $Rev::                                                                          $ }
-{ Author:        $Author::                                                                       $ }
+{ Author:        $Author: elias $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -62,8 +62,8 @@ procedure IniWriteStrings(IniFile: TCustomIniFile; const Section: string; String
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision$';
-    Date: '$Date$';
+    Revision: '$Revision: 1.1 $';
+    Date: '$Date: 2016-05-19 13:00:17 $';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil

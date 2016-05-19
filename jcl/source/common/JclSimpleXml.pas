@@ -27,9 +27,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date::                                                                         $ }
+{ Last modified: $Date: 2016-05-19 13:00:19 $ }
 { Revision:      $Rev::                                                                          $ }
-{ Author:        $Author::                                                                       $ }
+{ Author:        $Author: elias $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -662,8 +662,8 @@ function EntityDecode(const S: string): string;
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision$';
-    Date: '$Date$';
+    Revision: '$Revision: 1.1 $';
+    Date: '$Date: 2016-05-19 13:00:19 $';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil

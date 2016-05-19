@@ -30,7 +30,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 
-// Last modified: $Date$
+// Last modified: $Date: 2016-05-19 12:59:33 $
 // For history see end of file
 
 {
@@ -1865,7 +1865,10 @@ end;
 
 // History:
 
-// $Log$
+// $Log: JclBorlandToolsExtensions.pas,v $
+// Revision 1.1  2016-05-19 12:59:33  elias
+// *** empty log message ***
+//
 // Revision 1.9  2005/12/25 20:32:59  uschuster
 // Linker output options and compiler switches; some changes in TJclDCCEx.Compile; minor JCL style changes
 //

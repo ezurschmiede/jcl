@@ -26,9 +26,9 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date::                                                                         $ }
+{ Last modified: $Date: 2016-05-19 13:00:24 $ }
 { Revision:      $Rev::                                                                          $ }
-{ Author:        $Author::                                                                       $ }
+{ Author:        $Author: elias $ }
 {                                                                                                  }
 {**************************************************************************************************}
 
@@ -98,8 +98,8 @@ function JclBelongsHookedCode(Address: Pointer): Boolean;
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision$';
-    Date: '$Date$';
+    Revision: '$Revision: 1.1 $';
+    Date: '$Date: 2016-05-19 13:00:24 $';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

@@ -1,7 +1,7 @@
 #
 # Generates platform dependent units from common code base
 #
-# $Id$
+# $Id: Makefile.mak,v 1.1 2016-05-19 13:00:21 elias Exp $
 #
 
 jpp		= ..\..\devtools\jpp.exe
