@@ -303,7 +303,7 @@ end;
 procedure TJclDebugExtension.AfterCompile(const Project: IOTAProject; Succeeded: Boolean);
 var
   ProjectFileName, MapFileName, DrcFileName, ExecutableFileName, JdbgFileName: TFileName;
-  OutputDirectory, LinkerBugUnit: string;
+  OutputDirectory, LinkerBugUnit, ErrorMsg: string;
   Succ: Boolean;
   MapFileSize, JclDebugDataSize, LineNumberErrors, C: Integer;
   EnabledActions: TDebugExpertActions;
@@ -387,10 +387,18 @@ begin
           end
           else
             OutputToolMessage(Format(LoadResString(@RsEFailedToDeleteMapFile), ['MAP', MapFileName]));
+
+          if not FileExists(DrcFileName) then // Mantis #6488
+            DrcFileName := ChangeFileExt(MapFileName, CompilerExtensionDRC);
+
           if DeleteFile(DrcFileName) then
             OutputToolMessage(Format(LoadResString(@RsDeletedMapFile), ['DRC', DrcFileName]))
           else
+          begin
+            ErrorMsg := SysErrorMessage(GetLastError);
             OutputToolMessage(Format(LoadResString(@RsEFailedToDeleteMapFile), ['DRC', DrcFileName]));
+            OutputToolMessage(ErrorMsg);
+          end;
         end;
 
         Screen.Cursor := crDefault;
@@ -536,13 +544,13 @@ begin
       FSaveBuildAllProjectsActionExecute(Sender);
       DisplayResults;
     except
+      on EAbort do
+        raise;
+      on EFOpenError do // when ".ridl" files are not found by IDE, reraise the exception
+        raise;
       on ExceptionObj: TObject do
       begin
-        if ExceptionObj is EFOpenError then
-          // when ".ridl" files are not found by IDE, reraise the exception
-          raise
-        else
-          JclExpertShowExceptionDialog(ExceptionObj);
+        JclExpertShowExceptionDialog(ExceptionObj);
       end;
     end;
   finally
@@ -558,13 +566,13 @@ begin
       FSaveBuildProjectActionExecute(Sender);
       DisplayResults;
     except
+      on EAbort do
+        raise;
+      on EFOpenError do // when ".ridl" files are not found by IDE, reraise the exception
+        raise;
       on ExceptionObj: TObject do
       begin
-        if ExceptionObj is EFOpenError then
-          // when ".ridl" files are not found by IDE, reraise the exception
-          raise
-        else
-          JclExpertShowExceptionDialog(ExceptionObj);
+        JclExpertShowExceptionDialog(ExceptionObj);
       end;
     end;
   finally
@@ -1472,6 +1480,8 @@ begin
       FCurrentProject := nil;
     end;
   except
+    on EAbort do
+      raise;
     on ExceptionObj: Exception do
       JclExpertShowExceptionDialog(ExceptionObj);
   end;
@@ -1484,6 +1494,8 @@ begin
     if not IsCodeInsight then
       FDebugExtension.AfterCompile(Project, Succeeded);
   except
+    on EAbort do
+      raise;
     on ExceptionObj: Exception do
       JclExpertShowExceptionDialog(ExceptionObj);
   end;
@@ -1500,6 +1512,8 @@ begin
       FDebugExtension.BeforeCompile(Project, Cancel);
     end;
   except
+    on EAbort do
+      raise;
     on ExceptionObj: TObject do
       JclExpertShowExceptionDialog(ExceptionObj);
   end;

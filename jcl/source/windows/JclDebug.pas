@@ -1000,15 +1000,34 @@ const
 type
   TJclStackTrackingOption =
     (stStack, stExceptFrame, stRawMode, stAllModules, stStaticModuleList,
-     stDelayedTrace, stTraceAllExceptions, stMainThreadOnly, stDisableIfDebuggerAttached);
+     stDelayedTrace, stTraceAllExceptions, stMainThreadOnly, stDisableIfDebuggerAttached
+     {$IFDEF HAS_EXCEPTION_STACKTRACE}
+     // Resolves the Exception.Stacktrace string when the exception is raised. This is more
+     // exact if modules are unloaded before the delayed resolving happens, but it slows down
+     // the exception handling if no stacktrace is needed for the exception.
+     , stImmediateExceptionStacktraceResolving
+     {$ENDIF HAS_EXCEPTION_STACKTRACE}
+    );
   TJclStackTrackingOptions = set of TJclStackTrackingOption;
 
-//const
-  // replaced by RemoveIgnoredException(EAbort)
-  // stTraceEAbort = stTraceAllExceptions;
+  {$IFDEF HAS_EXCEPTION_STACKTRACE}
+  TJclExceptionStacktraceOption = (
+    estoIncludeModuleName,
+    estoIncludeAdressOffset,
+    estoIncludeStartProcLineOffset,
+    estoIncludeVAddress
+    );
+  TJclExceptionStacktraceOptions = set of TJclExceptionStacktraceOption;
+  {$ENDIF HAS_EXCEPTION_STACKTRACE}
 
 var
   JclStackTrackingOptions: TJclStackTrackingOptions = [stStack];
+
+  {$IFDEF HAS_EXCEPTION_STACKTRACE}
+  // JclExceptionStacktraceOptions controls the Exception.Stacktrace string's format
+  JclExceptionStacktraceOptions: TJclExceptionStacktraceOptions =
+    [estoIncludeModuleName, estoIncludeAdressOffset, estoIncludeStartProcLineOffset, estoIncludeVAddress];
+  {$ENDIF HAS_EXCEPTION_STACKTRACE}
 
   { JclDebugInfoSymbolPaths specifies a list of paths, separated by ';', in
     which the DebugInfoSymbol scanner should look for symbol information. }
@@ -2315,12 +2334,94 @@ var
   JclDebugSection: TImageSectionHeader;
   LastSection: PImageSectionHeader;
   VirtualAlignedSize: DWORD;
-  I, X, NeedFill: Integer;
+  NeedFill: Integer;
 
   procedure RoundUpToAlignment(var Value: DWORD; Alignment: DWORD);
   begin
     if (Value mod Alignment) <> 0 then
       Value := ((Value div Alignment) + 1) * Alignment;
+  end;
+
+  procedure MovePointerToRawData(AOffset: DWORD);
+  var
+    I: Integer;
+  begin
+    for I := Low(ImageSectionHeaders) to High(ImageSectionHeaders) do
+      ImageSectionHeaders[I].PointerToRawData := ImageSectionHeaders[I].PointerToRawData + AOffset;
+  end;
+
+  procedure FillZeros(AStream: TStream; ACount: Integer);
+  var
+    I: Integer;
+    X: array[0..511] of Byte;
+  begin
+    if ACount > 0 then
+    begin
+      if ACount > Length(X) then
+        FillChar(X, SizeOf(X), 0)
+      else
+        FillChar(X, ACount, 0);
+
+      while ACount > 0 do
+      begin
+        I := ACount;
+        if I > SizeOf(X) then
+          I := SizeOf(X);
+        AStream.WriteBuffer(X, I);
+        Dec(ACount, I);
+      end;
+    end;
+  end;
+
+  procedure WriteSectionHeaders(AStream: TStream; APosition: Integer);
+  var
+    HeaderSize: Integer;
+  begin
+    HeaderSize := SizeOf(TImageSectionHeader) * Length(ImageSectionHeaders);
+    if (AStream.Seek(APosition, soFromBeginning) <> APosition) or
+       (AStream.Write(ImageSectionHeaders[0], HeaderSize) <> HeaderSize) then
+      raise EJclPeImageError.CreateRes(@SWriteError);
+    FillZeros(AStream, ImageSectionHeaders[0].PointerToRawData - AStream.Position);
+  end;
+
+  procedure MoveData(AStream: TStream; AStart, AOffset: Integer);
+  var
+    CurPos: Integer;
+    CurSize: Integer;
+    Buffer: array of Byte;
+    StartPos: Integer;
+  begin
+    SetLength(Buffer, 1024 * 1024);
+    CurPos := AStream.Size - Length(Buffer);
+    StartPos := ImageSectionHeaders[0].PointerToRawData;
+    while CurPos > StartPos do
+    begin
+      if (AStream.Seek(CurPos, soBeginning) <> CurPos) or
+         (AStream.Read(Buffer[0], Length(Buffer)) <> Length(Buffer)) then
+        raise EJclPeImageError.CreateRes(@SReadError);
+      if (AStream.Seek(CurPos + AOffset, soBeginning) <> CurPos + AOffset) or
+         (AStream.Write(Buffer[0], Length(Buffer)) <> Length(Buffer)) then
+        raise EJclPeImageError.CreateRes(@SWriteError);
+      Dec(CurPos, Length(Buffer));
+    end;
+    CurSize := Length(Buffer) + CurPos - StartPos;
+    if (AStream.Seek(StartPos, soBeginning) <> StartPos) or
+       (AStream.Read(Buffer[0], CurSize) <> CurSize) then
+      raise EJclPeImageError.CreateRes(@SReadError);
+    if (AStream.Seek(StartPos + AOffset, soBeginning) <> StartPos + AOffset) or
+       (AStream.Write(Buffer[0], CurSize) <> CurSize) then
+      raise EJclPeImageError.CreateRes(@SWriteError);
+  end;
+
+  procedure CheckHeadersSpace(AStream: TStream);
+  begin
+    if ImageSectionHeaders[0].PointerToRawData < ImageSectionHeadersPosition +
+       (SizeOf(TImageSectionHeader) * (Length(ImageSectionHeaders) + 1)) then
+    begin
+      MoveData(AStream, ImageSectionHeaders[0].PointerToRawData, NtHeaders64.OptionalHeader.FileAlignment);
+      MovePointerToRawData(NtHeaders64.OptionalHeader.FileAlignment);
+      WriteSectionHeaders(AStream, ImageSectionHeadersPosition);
+    end;
   end;
 
 begin
@@ -2416,6 +2517,9 @@ begin
               Exit;
             end;
 
+            // Check if there is enough space for additional header
+            CheckHeadersSpace(ImageStream);
+
             JclDebugSectionPosition := ImageSectionHeadersPosition + (SizeOf(ImageSectionHeaders[0]) * Length(ImageSectionHeaders));
             LastSection := @ImageSectionHeaders[High(ImageSectionHeaders)];
 
@@ -2462,9 +2566,7 @@ begin
       // behind the size of the file then.
       ImageStream.Seek({0 +} JclDebugSection.PointerToRawData, soBeginning);
       ImageStream.CopyFrom(BinDebug.DataStream, 0);
-      X := 0;
-      for I := 1 to NeedFill do
-        ImageStream.WriteBuffer(X, 1);
+      FillZeros(ImageStream, NeedFill);
     except
       Result := False;
     end;
@@ -3251,7 +3353,7 @@ begin
           FUnitVersionRevision := UnitVersion.Revision;
           FValues := FValues + [lievUnitVersionInfo];
           Break;
-end;
+        end;
       end;
       if lievUnitVersionInfo in FValues then
         Break;
@@ -4349,7 +4451,11 @@ begin
     Module := ModuleFromAddr(Addr);
     if IncludeVAddress then
     begin
-      OffsetStr :=  Format('(%p) ', [Pointer(TJclAddr(Addr) - Module - ModuleCodeOffset)]);
+{$OVERFLOWCHECKS OFF} // Mantis #6104
+      OffsetStr := Format('(%p) ', [Pointer(TJclAddr(Addr) - Module - ModuleCodeOffset)]);
+{$IFDEF OVERFLOWCHECKS_ON}
+{$OVERFLOWCHECKS ON}
+{$ENDIF OVERFLOWCHECKS_OFF}
       Result := OffsetStr + Result;
     end;
     if IncludeModuleName then
@@ -5223,11 +5329,11 @@ begin
       else
         StackInfo.CallerAddr := StackFrameCallerAddr;
       // the stack may be messed up in big projects, avoid overflow in arithmetics
-      if StackFrameCallerFrame < TJclAddr(StackFrame) then
+      if StackFrameCallerFrame + FStackOffset < TJclAddr(StackFrame) then
         Break;
-      StackInfo.DumpSize := StackFrameCallerFrame - TJclAddr(StackFrame);
+      StackInfo.DumpSize := StackFrameCallerFrame + FStackOffset - TJclAddr(StackFrame);
       StackInfo.ParamSize := (StackInfo.DumpSize - SizeOf(TStackFrame)) div 4;
-      if PStackFrame(StackFrame^.CallerFrame) = StackFrame then
+      if PStackFrame(StackFrame^.CallerFrame + FStackOffset) = StackFrame then
         Break;
       // Step to the next stack frame by following the frame pointer
       StackFrame := PStackFrame(StackFrameCallerFrame + FStackOffset);
@@ -5416,7 +5522,6 @@ begin
     StackDataSize := TopOfStack - TJclAddr(StackPtr);
     GetMem(FStackData, StackDataSize);
     System.Move(StackPtr^, FStackData^, StackDataSize);
-    //CopyMemory(FStackData, StackPtr, StackDataSize);
   end;
 
   FStackOffset := Int64(FStackData) - Int64(StackPtr);
@@ -6797,49 +6902,98 @@ end;
 {$ENDIF MSWINDOWS}
 
 {$IFDEF HAS_EXCEPTION_STACKTRACE}
+type
+  PJclStackInfoRec = ^TJclStackInfoRec;
+  TJclStackInfoRec = record
+    Stack: TJclStackInfoList;
+    Stacktrace: string;
+  end;
+
+procedure ResolveStackInfoRec(Info: PJclStackInfoRec);
+var
+  Str: TStringList;
+begin
+  if (Info <> nil) and (Info.Stack <> nil) then
+  begin
+    Str := TStringList.Create;
+    try
+      Info.Stack.AddToStrings(Str,
+        estoIncludeModuleName in JclExceptionStacktraceOptions,
+        estoIncludeAdressOffset in JclExceptionStacktraceOptions,
+        estoIncludeStartProcLineOffset in JclExceptionStacktraceOptions,
+        estoIncludeVAddress in JclExceptionStacktraceOptions
+      );
+      FreeAndNil(Info.Stack);
+      Info.Stacktrace := Str.Text;
+    finally
+      FreeAndNil(Str);
+    end;
+  end;
+end;
+
+procedure CleanUpStackInfo(Info: Pointer);
+begin
+  if Info <> nil then
+  begin
+    PJclStackInfoRec(Info).Stack.Free;
+    Dispose(PJclStackInfoRec(Info));
+  end;
+end;
+
 function GetExceptionStackInfo(P: PExceptionRecord): Pointer;
 const
   cDelphiException = $0EEDFADE;
 var
   Stack: TJclStackInfoList;
-  Str: TStringList;
-  Trace: String;
-  Sz: Integer;
+  Info: PJclStackInfoRec;
+  RawMode: Boolean;
+  Delayed: Boolean;
+  IgnoreLevels: Integer;
 begin
-  if P^.ExceptionCode = cDelphiException then
-    Stack := JclCreateStackList(False, 3, P^.ExceptAddr)
-  else
-    Stack := JclCreateStackList(False, 3, P^.ExceptionAddress);
-  try
-    Str := TStringList.Create;
-    try
-      Stack.AddToStrings(Str, True, True, True, True);
-      Trace := Str.Text;
-    finally
-      FreeAndNil(Str);
-    end;
-  finally
-    FreeAndNil(Stack);
-  end;
+  RawMode := stRawMode in JclStackTrackingOptions;
+  Delayed := stDelayedTrace in JclStackTrackingOptions;
 
-  if Trace <> '' then
+  IgnoreLevels := 3;
+  if RawMode then
+    Inc(IgnoreLevels, 3);
+
+  if P^.ExceptionCode = cDelphiException then
   begin
-    Sz := (Length(Trace) + 1) * SizeOf(Char);
-    GetMem(Result, Sz);
-    Move(Pointer(Trace)^, Result^, Sz);
+    if (P^.ExceptObject <> nil) and
+       not (stTraceAllExceptions in JclStackTrackingOptions) and
+       IsIgnoredException(TObject(P^.ExceptObject).ClassType) then
+    begin
+      Result := nil;
+      Exit;
+    end;
+    Stack := TJclStackInfoList.Create(RawMode, IgnoreLevels, P^.ExceptAddr, Delayed); // Don't add it to the GlobalStackList
   end
   else
-    Result := nil;
+    Stack := TJclStackInfoList.Create(RawMode, IgnoreLevels, P^.ExceptionAddress, Delayed); // Don't add it to the GlobalStackList
+
+  New(Info);
+  Info.Stack := Stack;
+  if stImmediateExceptionStacktraceResolving in JclStackTrackingOptions then
+  begin
+    try
+      ResolveStackInfoRec(Info);
+    except
+      CleanUpStackInfo(Info);
+      Info := nil;
+    end;
+  end;
+
+  Result := Info;
 end;
 
 function GetStackInfoString(Info: Pointer): string;
+var
+  Rec: PJclStackInfoRec;
 begin
-  Result := PChar(Info);
-end;
-
-procedure CleanUpStackInfo(Info: Pointer);
-begin
-  FreeMem(Info);
+  Rec := Info;
+  if (Rec <> nil) and (Rec.Stack <> nil) then
+    ResolveStackInfoRec(Rec);
+  Result := Rec.Stacktrace;
 end;
 
 procedure SetupExceptionProcs;
