@@ -26,7 +26,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date: 2016-05-19 13:00:18 $ }
+{ Last modified: $Date: 2016-09-16 15:57:59 $ }
 { Revision:      $Rev::                                                                          $ }
 { Author:        $Author: elias $ }
 {                                                                                                  }
@@ -259,8 +259,8 @@ function StrReplaceRegEx(const Subject, Pattern: string; Args: array of const): 
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision: 1.1 $';
-    Date: '$Date: 2016-05-19 13:00:18 $';
+    Revision: '$Revision: 1.2 $';
+    Date: '$Date: 2016-09-16 15:57:59 $';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil

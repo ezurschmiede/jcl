@@ -50,7 +50,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date: 2016-05-19 13:00:20 $ }
+{ Last modified: $Date: 2016-09-16 15:57:59 $ }
 { Revision:      $Rev::                                                                          $ }
 { Author:        $Author: elias $ }
 {                                                                                                  }
@@ -1401,8 +1401,8 @@ var
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision: 1.1 $';
-    Date: '$Date: 2016-05-19 13:00:20 $';
+    Revision: '$Revision: 1.2 $';
+    Date: '$Date: 2016-09-16 15:57:59 $';
     LogPath: 'JCL\source\common';
     Extra: '';
     Data: nil
