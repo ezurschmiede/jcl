@@ -34,7 +34,7 @@
 {                                                                                                  }
 {**************************************************************************************************}
 {                                                                                                  }
-{ Last modified: $Date: 2016-09-16 15:58:00 $ }
+{ Last modified: $Date: 2017-10-12 10:02:26 $ }
 { Revision:      $Rev::                                                                          $ }
 { Author:        $Author: elias $ }
 {                                                                                                  }
@@ -1056,8 +1056,8 @@ procedure AddModule(const ModuleName: string);
 const
   UnitVersioning: TUnitVersionInfo = (
     RCSfile: '$URL$';
-    Revision: '$Revision: 1.2 $';
-    Date: '$Date: 2016-09-16 15:58:00 $';
+    Revision: '$Revision: 1.3 $';
+    Date: '$Date: 2017-10-12 10:02:26 $';
     LogPath: 'JCL\source\windows';
     Extra: '';
     Data: nil

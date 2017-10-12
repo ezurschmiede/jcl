@@ -63,7 +63,6 @@
         <SanitizedProjectName>Jcl</SanitizedProjectName>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <VerInfo_Build>5300</VerInfo_Build>
-        <VerInfo_Release>0</VerInfo_Release>
         <VerInfo_MinorVer>7</VerInfo_MinorVer>
         <VerInfo_Keys>CompanyName=Project JEDI;FileDescription=JEDI Code Library RTL package;FileVersion=2.7.0.5300;InternalName=Jcl;LegalCopyright=Copyright (C) 1999, 2014 Project JEDI;OriginalFilename=Jcl250.bpl;ProductName=JEDI Code Library;ProductVersion=2.7.0.5300</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -84,10 +83,11 @@
         <DCC_UsePackage>rtl;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <VerInfo_Build>0</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -101,16 +101,16 @@
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
-        <DCC_DcuOutput>..\..\lib\d25\win32\debug</DCC_DcuOutput>
         <DCC_ObjOutput>..\..\lib\d25\win32\debug</DCC_ObjOutput>
         <DCC_HppOutput>..\..\lib\d25\win32\debug</DCC_HppOutput>
-        <DCC_DcpOutput>..\..\lib\d25\win32\debug</DCC_DcpOutput>
         <DCC_UnitSearchPath>..\..\lib\d25\win32\debug;..\..\source\include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ResourcePath>..\..\lib\d25\win32\debug;..\..\source\include;$(DCC_ResourcePath)</DCC_ResourcePath>
         <DCC_ObjPath>..\..\lib\d25\win32\debug;..\..\source\include;$(DCC_ObjPath)</DCC_ObjPath>
+        <VerInfo_MajorVer>1</VerInfo_MajorVer>
         <DCC_IncludePath>..\..\lib\d25\win32\debug;..\..\source\include;$(DCC_IncludePath)</DCC_IncludePath>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
         <DCC_DcuOutput>..\..\lib\d25\win64\debug</DCC_DcuOutput>
@@ -131,16 +131,16 @@
         <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <DCC_DcuOutput>..\..\lib\d25\win32</DCC_DcuOutput>
         <DCC_ObjOutput>..\..\lib\d25\win32</DCC_ObjOutput>
         <DCC_HppOutput>..\..\lib\d25\win32</DCC_HppOutput>
-        <DCC_DcpOutput>..\..\lib\d25\win32</DCC_DcpOutput>
         <DCC_UnitSearchPath>..\..\lib\d25\win32;..\..\source\include;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_ResourcePath>..\..\lib\d25\win32;..\..\source\include;$(DCC_ResourcePath)</DCC_ResourcePath>
         <DCC_ObjPath>..\..\lib\d25\win32;..\..\source\include;$(DCC_ObjPath)</DCC_ObjPath>
         <DCC_IncludePath>..\..\lib\d25\win32;..\..\source\include;$(DCC_IncludePath)</DCC_IncludePath>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_MajorVer>1</VerInfo_MajorVer>
+        <VerInfo_MinorVer>0</VerInfo_MinorVer>
+        <VerInfo_Build>0</VerInfo_Build>
+        <VerInfo_Keys>CompanyName=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName);FileDescription=$(MSBuildProjectName);ProductName=$(MSBuildProjectName)</VerInfo_Keys>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
         <DCC_DcuOutput>..\..\lib\d25\win64</DCC_DcuOutput>
@@ -281,7 +281,10 @@
                 <Source>
                     <Source Name="MainSource">Jcl.dpk</Source>
                 </Source>
-                <Excluded_Packages/>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Beispiele für gekapselte Komponenten für Automatisierungsserver</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Beispiele für gekapselte Komponenten für Automation Server</Excluded_Packages>
+                </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">
                 <DeployFile LocalName="$(BDS)\Redist\osx32\libcgunwind.1.0.dylib" Class="DependencyModule">
